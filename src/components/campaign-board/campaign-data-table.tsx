@@ -150,7 +150,7 @@ export function DataTable() {
     data: data as Campaign[] ?? [],
     columns: columns,
     state: { sorting, pagination },
-    pageCount: Math.ceil(((data as Campaign[]).length || 0) / pageSize),
+    pageCount: Math.ceil(((data as Campaign[])?.length || 0) / pageSize),
     enableRowSelection: true,
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
