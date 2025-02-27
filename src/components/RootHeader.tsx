@@ -1,5 +1,5 @@
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { WalletSelector } from "@/components/wallet/WalletSelector";
+// import { WalletSelector } from "@/components/wallet/WalletSelector";
 // import { WalletConnection } from "./wallet/WalletConnection";
 
 export const RootHeader = () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { getAptosClient } from "@/lib/aptos";
 import {
   Tooltip,
@@ -41,7 +41,7 @@ export const IndexerStatus = () => {
     return <div>Error getting last indexer version: {error.message}</div>;
   }
 
-  const versionDiff = data.onChainLastVersion - data.indexerLastVersion;
+  const versionDiff = data.onChainLastVersion;
   const isHealthy = versionDiff < 100;
 
   return (
@@ -59,7 +59,7 @@ export const IndexerStatus = () => {
         </TooltipTrigger>
         <TooltipContent>
           <div className="text-sm">
-            <p>Indexer Version: {data.indexerLastVersion}</p>
+            {/* <p>Indexer Version: {data.indexerLastVersion}</p> */}
             <p>On-Chain Version: {data.onChainLastVersion}</p>
             <p>Difference: {versionDiff}</p>
             <p>

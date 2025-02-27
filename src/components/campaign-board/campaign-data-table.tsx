@@ -47,25 +47,44 @@ interface Campaign {
 }
 
 export function DataTable() {
-
   // ✅ Define Table Columns
-  const columns: ColumnDef<Campaign>[] = [
-    { accessorKey: "campaign_id", header: "ID", cell: (info) => info.getValue() },
-    { accessorKey: "name", header: "Campaign Name", cell: (info) => info.getValue() },
-    { accessorKey: "max_participant", header: "Max Participants", cell: (info) => info.getValue() },
-    { accessorKey: "reward_per_submit", header: "Reward/Submit", cell: (info) => info.getValue() },
-    { accessorKey: "reward_pool", header: "Reward Pool", cell: (info) => info.getValue() },
+  const columns: ColumnDef<Campaign, any>[] = [
     {
-      accessorKey: "end_time",
-      header: "End Time",
+      accessorKey: "campaign_id", 
+      header: "ID", 
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "name", 
+      header: "Campaign Name", 
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "max_participant", 
+      header: "Max Participants", 
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "reward_per_submit", 
+      header: "Reward/Submit", 
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "reward_pool", 
+      header: "Reward Pool", 
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "end_time", 
+      header: "End Time", 
       cell: (info) => {
         const timestamp = info.getValue() as number;
         return new Date(timestamp * 1000).toLocaleString();
       },
     },
     {
-      accessorKey: "participants",
-      header: "Participants",
+      accessorKey: "participants", 
+      header: "Participants", 
       cell: (info) => {
         const participants = info.getValue() as Participant[];
         return (
@@ -82,13 +101,11 @@ export function DataTable() {
       },
     },
     {
-      header: "Actions", // New Column for actions (button)
+      header: "Actions", 
       cell: (info) => {
         const campaign = info.row.original;
-        const currentTime = Date.now(); // Get the current time in milliseconds
-
-        // Disable the button and show "Expired" if current time is greater than the campaign's end_time
-        const isExpired = currentTime > campaign.end_time * 1000; // end_time is assumed to be in seconds, so multiply by 1000
+        const currentTime = Date.now();
+        const isExpired = currentTime > campaign.end_time * 1000;
 
         return (
           <button
@@ -102,7 +119,7 @@ export function DataTable() {
               ? "bg-gray-400 text-gray-700 cursor-not-allowed"
               : "bg-green-500 text-white hover:bg-green-600"
               } px-4 py-2 rounded-md shadow-md`}
-            disabled={isExpired} // Disable the button if expired
+            disabled={isExpired}
           >
             {isExpired ? "Expired" : "Participate"}
           </button>
@@ -115,10 +132,8 @@ export function DataTable() {
   const { network, signAndSubmitTransaction } = useWallet();
   const [selectedParticipants, setSelectedParticipants] = React.useState<Participant[] | null>(null);
   const [modalOpen, setModalOpen] = React.useState(false);
-
   const [confirmModalOpen, setConfirmModalOpen] = React.useState(false);
-  const [selectedCampaign, setSelectedCampaign] = React.useState<Campaign | null>(null); // <-- Added missing state for selected campaign
-
+  const [selectedCampaign, setSelectedCampaign] = React.useState<Campaign | null>(null);
   const [sorting, setSorting] = React.useState<SortingState>([{ id: "campaign_id", desc: false }]);
   const [{ pageIndex, pageSize }, setPagination] = React.useState({ pageIndex: 0, pageSize: 5 });
 
@@ -132,12 +147,10 @@ export function DataTable() {
   const pagination = React.useMemo(() => ({ pageIndex, pageSize }), [pageIndex, pageSize]);
 
   const table = useReactTable({
-    data: (data?.length > 0 ? data[0] : []) || [],
-    columns: [
-      ...columns,
-    ],
+    data: data as Campaign[] ?? [],
+    columns: columns,
     state: { sorting, pagination },
-    pageCount: Math.ceil((data?.length || 0) / pageSize),
+    pageCount: Math.ceil(((data as Campaign[]).length || 0) / pageSize),
     enableRowSelection: true,
     onSortingChange: setSorting,
     onPaginationChange: setPagination,
@@ -149,8 +162,8 @@ export function DataTable() {
   });
 
   const handleParticipate = (campaignId: string) => {
-    participateCampaignById(campaignId); // Example function
-    setConfirmModalOpen(false); // Close the modal after action
+    participateCampaignById(campaignId);
+    setConfirmModalOpen(false);
   };
 
   const participateCampaignById = (campaignId: string) => {
@@ -166,18 +179,9 @@ export function DataTable() {
       .then((executedTransaction) => {
         toast({
           title: "Success",
-          description: (
-            <TransactionOnExplorer hash={executedTransaction.hash} />
-          ),
+          description: <TransactionOnExplorer hash={executedTransaction.hash} />,
         });
-
-        // Trigger refetching of campaign data after the transaction is executed
         queryClient.invalidateQueries({ queryKey: ["campaigns", network] });
-
-        return new Promise((resolve) => setTimeout(resolve, 3000));
-      })
-      .then(() => {
-        // Additional actions if needed after refetching
       })
       .catch((error) => {
         toast({
@@ -228,9 +232,8 @@ export function DataTable() {
           </TableBody>
         </Table>
       </div>
-      <DataTablePagination table={table} totalItems={data?.length || 0} />
-
-      {/* ✅ Modal to show participants */}
+      <DataTablePagination table={table} totalItems={(data as Campaign[]).length || 0} />
+      {/* Modal for participants */}
       {modalOpen && selectedParticipants && (
         <Modal title="Participants List" onClose={() => setModalOpen(false)} isOpen={modalOpen}>
           <ul className="max-h-96 overflow-y-auto space-y-2">
@@ -254,14 +257,9 @@ export function DataTable() {
           </ul>
         </Modal>
       )}
-
-      {/* ✅ Modal for confirming participation */}
+      {/* Modal for confirming participation */}
       {confirmModalOpen && selectedCampaign && (
-        <Modal
-          title="Confirm Participation"
-          onClose={() => setConfirmModalOpen(false)}
-          isOpen={confirmModalOpen}
-        >
+        <Modal title="Confirm Participation" onClose={() => setConfirmModalOpen(false)} isOpen={confirmModalOpen}>
           <p>Are you sure you want to participate in campaign {selectedCampaign.name}?</p>
           <div className="flex justify-end space-x-4 mt-4">
             <button

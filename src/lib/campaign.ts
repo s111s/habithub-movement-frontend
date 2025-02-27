@@ -6,7 +6,7 @@ export async function fetchCampaignData(network: NetworkInfo) {
   try {
     const response = await aptosClient(network).view({ payload: viewModuleFunction() });
     console.log("Fetched campaigns:", response);
-    return response || [];
+    return (response?.length > 0 ? response[0] : []);
   } catch (error) {
     console.error("Error fetching campaign data:", error);
     return [];
