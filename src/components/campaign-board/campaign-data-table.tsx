@@ -25,7 +25,8 @@ import { RowModal } from "../ui/row-modal";
 import { Modal } from "../ui/modal";
 import UploadForm from "../SubmitDataForm";
 import { viewCampaignById } from "@/entry-functions/viewCampaign";
-import { AptosAccount,AptosClient } from "aptos";
+import { AptosAccount, AptosClient } from "aptos";
+import { claimReward } from "@/entry-functions/claimReward";
 
 // ✅ Define Participant Interface
 interface Participant {
@@ -54,7 +55,7 @@ interface Campaign {
 
 export function DataTable() {
 
-  const { network, signAndSubmitTransaction, signIn, account,wallet } = useWallet();
+  const { network, signAndSubmitTransaction, signIn, account, wallet } = useWallet();
 
   // ✅ Define Table Columns
   const columns: ColumnDef<Campaign, any>[] = [
@@ -67,7 +68,7 @@ export function DataTable() {
       accessorKey: "name",
       header: "Campaign Name",
       cell: (info) => {
-        return <h3 style={{minWidth:"200px"}}>{info.getValue()}</h3>
+        return <h3 style={{ minWidth: "200px" }}>{info.getValue()}</h3>
       }
     },
     {
@@ -121,6 +122,59 @@ export function DataTable() {
         );
       },
     },
+    // {
+    //   header: "Actions",
+    //   cell: (info) => {
+    //     const campaign = info.row.original;
+    //     const currentTime = Date.now();
+    //     const isExpired = currentTime > campaign.end_time * 1000;
+
+    //     return (
+    //       <button
+    //         onClick={() => {
+    //           if (!isExpired) {
+    //             setSelectedCampaign(campaign);
+    //             setConfirmModalOpen(true);
+    //           }
+    //         }}
+    //         className={`${isExpired
+    //           ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+    //           : "bg-green-500 text-white hover:bg-green-600"
+    //           } text-sm px-1 py-1 rounded-lg shadow-md`} // Resized button with padding adjustment
+    //         disabled={isExpired}
+    //       >
+    //         {isExpired ? "Expired" : "Participate"}
+    //       </button>
+    //     );
+    //   },
+    // },
+    // {
+    //   header: "Actions",
+    //   cell: (info) => {
+    //     const campaign = info.row.original;
+    //     const currentTime = Date.now();
+    //     const isExpired = currentTime > campaign.end_time * 1000;
+
+    //     return (
+    //       <button
+    //         onClick={async () => {
+    //           if (!isExpired) {
+    //             setSelectedCampaignForUpload(campaign);  // Set selected campaign
+    //             setUploadFormOpen(true);  // Open the upload form modal
+    //           }
+    //         }}
+    //         style={{ padding: "5px 5px !important" }} // Directly set the width for "Upload Form" button
+    //         className={`${isExpired
+    //           ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+    //           : "bg-green-500 text-white hover:bg-green-600"
+    //           } text-sm px-1 py-1 rounded-lg shadow-md`} // Resized button with padding adjustment
+    //         disabled={isExpired}
+    //       >
+    //         {isExpired ? "Expired" : "Submit"}
+    //       </button>
+    //     );
+    //   },
+    // }
     {
       header: "Actions",
       cell: (info) => {
@@ -128,54 +182,25 @@ export function DataTable() {
         const currentTime = Date.now();
         const isExpired = currentTime > campaign.end_time * 1000;
 
+        const handleClick = () => {
+          setSelectedCampaign(campaign);
+          setActionModalOpen(true);
+        };
+
         return (
           <button
-            onClick={() => {
-              if (!isExpired) {
-                setSelectedCampaign(campaign);
-                setConfirmModalOpen(true);
-              }
-            }}
-            className={`${isExpired
-              ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-              : "bg-green-500 text-white hover:bg-green-600"
-              } text-sm px-1 py-1 rounded-lg shadow-md`} // Resized button with padding adjustment
+            onClick={handleClick}
+            className={`${isExpired ? "bg-gray-400 text-gray-700 cursor-not-allowed" : "bg-green-500 text-white hover:bg-green-600"} text-sm px-1 py-1 rounded-lg shadow-md`}
             disabled={isExpired}
           >
-            {isExpired ? "Expired" : "Participate"}
-          </button>
-        );
-      },
-    },
-    {
-      header: "Actions",
-      cell: (info) => {
-        const campaign = info.row.original;
-        const currentTime = Date.now();
-        const isExpired = currentTime > campaign.end_time * 1000;
-         
-        return (
-          <button
-            onClick={async () => {
-              if (!isExpired) {
-                setSelectedCampaignForUpload(campaign);  // Set selected campaign
-                setUploadFormOpen(true);  // Open the upload form modal
-              }
-            }}
-            style={{ padding: "5px 5px !important" }} // Directly set the width for "Upload Form" button
-            className={`${isExpired
-              ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-              : "bg-green-500 text-white hover:bg-green-600"
-              } text-sm px-1 py-1 rounded-lg shadow-md`} // Resized button with padding adjustment
-            disabled={isExpired}
-          >
-            {isExpired ? "Expired" : "Submit"}
+            {isExpired ? "Expired" : "Actions"}
           </button>
         );
       },
     }
   ];
 
+  const [actionModalOpen, setActionModalOpen] = React.useState(false);
   const queryClient = useQueryClient();
   const [selectedParticipants, setSelectedParticipants] = React.useState<Participant[] | null>(null);
   const [modalOpen, setModalOpen] = React.useState(false);
@@ -220,7 +245,6 @@ export function DataTable() {
       participateCampaign(parseInt(campaignId))
     )
       .then((committedTransaction) => {
-        console.log(getAptosClient().faucet);
         return getAptosClient().waitForTransaction({
           transactionHash: committedTransaction.hash,
         });
@@ -236,6 +260,37 @@ export function DataTable() {
         toast({
           title: "Error",
           description: "Failed to participate in the campaign",
+        });
+      });
+  };
+
+  const handleSubmit = () => {
+    // Handle the submission action
+    setSelectedCampaignForUpload(selectedCampaign);
+    setActionModalOpen(false);
+    setUploadFormOpen(true); // Open the upload form
+  };
+
+  const handleClaimReward = (campaignId: string) => {
+    signAndSubmitTransaction(
+      claimReward(parseInt(campaignId))
+    )
+      .then((committedTransaction) => {
+        return getAptosClient().waitForTransaction({
+          transactionHash: committedTransaction.hash,
+        });
+      })
+      .then((executedTransaction) => {
+        toast({
+          title: "Success",
+          description: <TransactionOnExplorer hash={executedTransaction.hash} />,
+        });
+        queryClient.invalidateQueries({ queryKey: ["campaigns", network] });
+      })
+      .catch((error) => {
+        toast({
+          title: "Error",
+          description: "Failed to claim reward in the campaign",
         });
       });
   };
@@ -323,6 +378,41 @@ export function DataTable() {
               className="bg-green-500 text-white px-4 py-2 rounded-md"
             >
               Confirm
+            </button>
+          </div>
+        </Modal>
+      )}
+
+      {/* Modal for UploadForm */}
+      {uploadFormOpen && selectedCampaignForUpload && (
+        <Modal title="Submit Data Form" onClose={() => setUploadFormOpen(false)} isOpen={uploadFormOpen}>
+          <UploadForm campaignId={parseInt(selectedCampaignForUpload.campaign_id)} />
+        </Modal>
+      )}
+
+      {/* Modal for confirming actions (Participate or Submit) */}
+      {actionModalOpen && selectedCampaign && (
+        <Modal title="Choose Action" onClose={() => setActionModalOpen(false)} isOpen={actionModalOpen}>
+          <p className="ml-4">Choose what you'd like to do with the campaign:</p>
+          <p>{selectedCampaign.name}</p>
+          <div className="flex justify-center space-x-4 mt-4">
+            <button
+              onClick={() => handleParticipate(selectedCampaign.campaign_id)}
+              className="bg-orange-500 text-white px-4 py-2 rounded-md"
+            >
+              Participate
+            </button>
+            <button
+              onClick={() => handleSubmit()}
+              className="bg-blue-500 text-white px-4 py-2 rounded-md"
+            >
+              Submit
+            </button>
+            <button
+              onClick={() => handleClaimReward(selectedCampaign.campaign_id)}
+              className="bg-green-500 text-white px-4 py-2 rounded-md"
+            >
+              Get Reward
             </button>
           </div>
         </Modal>
