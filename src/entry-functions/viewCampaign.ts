@@ -10,3 +10,11 @@ export const viewModuleFunction = (): InputViewFunctionData => {
         functionArguments: []
     };
 };
+
+export const viewCampaignById = (campaignId: number): InputViewFunctionData => {
+    return {
+        function: `${CAMPAIGN_ACCOUNT}::${MODULE}::get_campaign_by_id`,
+        typeArguments: [],
+        functionArguments: [campaignId]
+    };
+};

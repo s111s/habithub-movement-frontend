@@ -8,12 +8,12 @@ const MODULE = "Campaign";
 export const createCampaign = (
   campaignData: CreateCampaignData
 ): InputTransactionData => {
-  const { name, duration, rewardPool, rewardPerSubmit, maxParticipant, dataTypes, dataValidateType } = campaignData;
+  const { name, duration, rewardPool, rewardPerSubmit, maxParticipant, dataType, dataValidateType } = campaignData;
   return {
     data: {
       function: `${CAMPAIGN_ACCOUNT}::${MODULE}::create_campaign`,
       typeArguments: [],
-      functionArguments: [name, duration, rewardPool, rewardPerSubmit, maxParticipant, dataTypes, dataValidateType]
+      functionArguments: [name, duration, rewardPool, rewardPerSubmit, maxParticipant, dataType, dataValidateType]
     },
   };
 };

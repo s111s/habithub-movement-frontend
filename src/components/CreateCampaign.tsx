@@ -47,7 +47,7 @@ const FormSchema = z.object({
   rewardPool: z.number(),
   rewardPerSubmit: z.number(),
   maxParticipant: z.number(),
-  dataTypes: z.string(),
+  dataType: z.string(),
   dataValidateType: z.string()
 });
 
@@ -81,7 +81,7 @@ export function CreateCampaign() {
         rewardPool: data.rewardPool,
         rewardPerSubmit: data.rewardPerSubmit,
         maxParticipant: data.maxParticipant,
-        dataTypes:data.dataTypes,
+        dataType:data.dataType,
         dataValidateType:data.dataValidateType
       })
     )
@@ -207,7 +207,7 @@ export function CreateCampaign() {
               {/* ✅ Message Field */}
               <FormField
               control={form.control}
-              name="dataTypes"
+              name="dataType"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Data Type</FormLabel>

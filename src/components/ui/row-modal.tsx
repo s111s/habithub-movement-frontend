@@ -5,7 +5,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const Modal = ({ title, children, isOpen, onClose }: { title: string; children: React.ReactNode; isOpen: boolean; onClose: () => void; }) => {
+const RowModal = ({ title, children, isOpen, onClose }: { title: string; children: React.ReactNode; isOpen: boolean; onClose: () => void; }) => {
   return (
     <Dialog.Root open={isOpen} onOpenChange={onClose}>
       <Dialog.Portal>
@@ -22,11 +22,11 @@ const Modal = ({ title, children, isOpen, onClose }: { title: string; children: 
               <X className="h-5 w-5" />
             </button>
           </div>
-          <div className="items-center space-x-4">{children}</div>
+          <div className="flex items-center space-x-4">{children}</div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
   );
 };
 
-export { Modal };
+export { RowModal };
