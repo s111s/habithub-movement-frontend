@@ -63,7 +63,7 @@ export default function Home() {
   const [showWallet, setShowWallet] = React.useState<boolean>(false); // 
 
   return (
-    <main className="flex flex-col w-full max-w-[1000px] p-6 md:px-8 gap-6">
+    <main className="flex flex-col w-full max-w-[1200px] p-6 md:px-8 gap-6">
       <div className="flex justify-between gap-6">
         <div className="flex flex-wrap items-center justify-between gap-6 w-full">
           <h1 className="text-xl md:col-6 sm:text-3xl font-semibold tracking-tight">

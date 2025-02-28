@@ -4,4 +4,6 @@ export interface CreateCampaignData {
     rewardPool: number;
     rewardPerSubmit: number;
     maxParticipant: number;
+    dataTypes: string;
+  dataValidateType: string;
   }

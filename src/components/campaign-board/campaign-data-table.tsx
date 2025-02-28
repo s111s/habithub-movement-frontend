@@ -43,6 +43,8 @@ interface Campaign {
   reward_per_submit: number;
   reward_pool: number;
   end_time: number;
+  data_validation_type: string;
+  data_type: string;
   participants: Participant[];
 }
 
@@ -57,6 +59,16 @@ export function DataTable() {
     {
       accessorKey: "name", 
       header: "Campaign Name", 
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "data_type", 
+      header: "Data Type", 
+      cell: (info) => info.getValue(),
+    },
+    {
+      accessorKey: "data_validation_type", 
+      header: "Validate", 
       cell: (info) => info.getValue(),
     },
     {
