@@ -29,7 +29,7 @@ import { AptosAccount, AptosClient } from "aptos";
 import { claimReward } from "@/entry-functions/claimReward";
 
 // ✅ Define Participant Interface
-interface Participant {
+export interface Participant {
   is_claimed_reward: boolean;
   is_participated: boolean;
   is_submitted: boolean;
@@ -41,7 +41,7 @@ interface Participant {
 }
 
 // ✅ Define Campaign Interface
-interface Campaign {
+export interface Campaign {
   campaign_id: string;
   name: string;
   max_participant: number;
@@ -53,7 +53,7 @@ interface Campaign {
   participants: Participant[];
 }
 
-export function DataTable() {
+export function CampaignDataTable({ setSelectedCampaignPage }: { setSelectedCampaignPage : React.Dispatch<React.SetStateAction<Campaign | null>> }) {
 
   const { network, signAndSubmitTransaction, signIn, account, wallet } = useWallet();
 
@@ -68,8 +68,16 @@ export function DataTable() {
       accessorKey: "name",
       header: "Campaign Name",
       cell: (info) => {
-        return <h3 style={{ minWidth: "200px" }}>{info.getValue()}</h3>
-      }
+        const campaign = info.row.original;
+        return (
+          <button
+            onClick={() => setSelectedCampaignPage(campaign)} // Set the selected campaign on click
+            className="text-blue-500 underline text-sm px-6 py-3 rounded-md shadow-md"
+          >
+            {info.getValue()}
+          </button>
+        );
+      },
     },
     {
       accessorKey: "data_type",
@@ -122,59 +130,6 @@ export function DataTable() {
         );
       },
     },
-    // {
-    //   header: "Actions",
-    //   cell: (info) => {
-    //     const campaign = info.row.original;
-    //     const currentTime = Date.now();
-    //     const isExpired = currentTime > campaign.end_time * 1000;
-
-    //     return (
-    //       <button
-    //         onClick={() => {
-    //           if (!isExpired) {
-    //             setSelectedCampaign(campaign);
-    //             setConfirmModalOpen(true);
-    //           }
-    //         }}
-    //         className={`${isExpired
-    //           ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-    //           : "bg-green-500 text-white hover:bg-green-600"
-    //           } text-sm px-1 py-1 rounded-lg shadow-md`} // Resized button with padding adjustment
-    //         disabled={isExpired}
-    //       >
-    //         {isExpired ? "Expired" : "Participate"}
-    //       </button>
-    //     );
-    //   },
-    // },
-    // {
-    //   header: "Actions",
-    //   cell: (info) => {
-    //     const campaign = info.row.original;
-    //     const currentTime = Date.now();
-    //     const isExpired = currentTime > campaign.end_time * 1000;
-
-    //     return (
-    //       <button
-    //         onClick={async () => {
-    //           if (!isExpired) {
-    //             setSelectedCampaignForUpload(campaign);  // Set selected campaign
-    //             setUploadFormOpen(true);  // Open the upload form modal
-    //           }
-    //         }}
-    //         style={{ padding: "5px 5px !important" }} // Directly set the width for "Upload Form" button
-    //         className={`${isExpired
-    //           ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-    //           : "bg-green-500 text-white hover:bg-green-600"
-    //           } text-sm px-1 py-1 rounded-lg shadow-md`} // Resized button with padding adjustment
-    //         disabled={isExpired}
-    //       >
-    //         {isExpired ? "Expired" : "Submit"}
-    //       </button>
-    //     );
-    //   },
-    // }
     {
       header: "Actions",
       cell: (info) => {
