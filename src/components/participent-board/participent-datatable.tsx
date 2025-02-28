@@ -115,7 +115,7 @@ export function DataTableParticipants({ campaign }: { campaign: Campaign }) {
                     </TableBody>
                 </Table> : ""}
             </div>
-            {/* <DataTablePagination table={table} totalItems={participants.length} /> */}
+            <DataTablePagination table={table} totalItems={participants?.length ?? 0} />
             {/* Modal for participants */}
         </div>
     );
